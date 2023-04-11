@@ -1,7 +1,7 @@
+import { useCallback } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import CircularProgress from "@mui/material/CircularProgress";
 import styled from "@emotion/styled";
-import { useCallback } from "react";
 
 interface Order {
   orderId: string;
@@ -31,12 +31,6 @@ const Loader = styled.div({
   display: "flex",
   justifyContent: "center",
   marginTop: "10%",
-});
-
-const HoveredRow = styled.div({
-  display: "flex",
-  alignItems: "center",
-  width: "100%",
 });
 
 const columns: GridColDef[] = [
