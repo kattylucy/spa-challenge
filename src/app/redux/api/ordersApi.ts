@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { Order } from "../../types/OrdersTypes";
 
@@ -11,16 +10,12 @@ interface OrdersResponse {
 interface OrderResponse {
   data: Order;
 }
-
-interface ErrorResponse {
-  error: string;
-}
-
 export const ordersApi = createApi({
-  reducerPath: "api",
+  reducerPath: "orders",
   baseQuery: fetchBaseQuery({ baseUrl: "https://red-candidate-web.azurewebsites.net/api/" }),
+  tagTypes: ['Orders'], 
   endpoints: (builder) => ({
-    fetchOrders: builder.query<OrdersResponse, void>({
+    fetchOrders: builder.query<OrdersResponse, string | void>({
       query: (filter) => ({
         url: `Orders/${filter}`,
         headers: { ApiKey: apiKey },
@@ -36,12 +31,23 @@ export const ordersApi = createApi({
       }),
       invalidatesTags: ['Orders']
     }),
-    deleteOrders: builder.mutation<void, void>({
-      query: () => ({
+    deleteOrders: builder.mutation<void, string[]>({
+      query: (selectedOrders) => ({
         url: "Orders/Delete",
         method: "POST",
         headers: { ApiKey: apiKey },
+        body: selectedOrders
       }),
+      invalidatesTags: ['Orders']
+    }),
+    updateOrder: builder.mutation<OrderResponse, { id: string, order: Partial<Order> }>({
+      query: ({ id, order }) => ({
+        url: `Orders/${id}`,
+        method: "PUT",
+        headers: { ApiKey: apiKey },
+        body: order,
+      }),
+      invalidatesTags: ['Orders']
     }),
   }),
 });
@@ -66,8 +72,8 @@ interface DeleteOrdersResult {
   isLoading: boolean;
 }
 
-export const useFetchOrders = (): [FetchOrdersResult, () => void] => {
-  const { data, error, isLoading, refetch } = useFetchOrdersQuery();
+export const useFetchOrders = (filter?: string): [FetchOrdersResult, () => void] => {
+  const { data, error, isLoading, refetch } = useFetchOrdersQuery(filter);
   const result: FetchOrdersResult = {
     data: data?.data ?? [],
     error: error?.error ?? null,
@@ -89,18 +95,13 @@ export const useCreateOrder = (): [CreateOrderResult, (newOrder: Partial<Order>)
   return [result, createOrder];
 };
 
-export const useDeleteOrders = (): [DeleteOrdersResult, () => Promise<void>] => {
+export const useDeleteOrders = (): [(selectedOrders: string[]) => Promise<void>, DeleteOrdersResult] => {
   const [mutate, { isLoading }] = useDeleteOrdersMutation();
+  const deleteOrders = async (orders: string[]): Promise<void> => {
+    await mutate(orders).unwrap();
+  };
 
-  const deleteOrders = useCallback(async () => {
-    try {
-      await mutate();
-    } catch (error) {
-      console.log(error);
-    }
-  }, [mutate]);
-
-  return [{ isLoading, error: null }, deleteOrders];
+  return [deleteOrders, { isLoading, error: null }];
 };
 
 
