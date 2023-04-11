@@ -1,26 +1,28 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import styled from "@emotion/styled";
+import { ThemeProvider } from "@emotion/react";
+import { CssBaseline } from "@material-ui/core";
+import { Header } from "./pages/Header";
+import { SpaTable } from "./pages/SpaTable";
+import { Toast } from "./components/Toast";
+import theme from "./app/theme/theme";
 
-function App() {
+const AppWrapper = styled.div({
+  fontFamily: "roboto",
+  padding: 0,
+  margin: 0,
+});
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppWrapper>
+        <Toast />
+        <Header />
+        <SpaTable />
+      </AppWrapper>
+    </ThemeProvider>
   );
-}
+};
 
 export default App;
