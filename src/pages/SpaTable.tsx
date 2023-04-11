@@ -1,11 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { AnyAction } from "redux";
-import { ThunkDispatch } from "redux-thunk";
+import { useCallback, useState } from "react";
 import styled from "@emotion/styled";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { fetchOrders } from "src/app/requests/ordersRequest";
+import { useFetchOrdersQuery } from "src/app/redux/api/ordersApi";
 import { SearchInput } from "src/components/SearchInput";
 import { ButtonComponent } from "src/components/Button";
 import { Table } from "src/components/Table";
@@ -34,23 +31,19 @@ const SpaTablePage = styled.div({
 });
 
 export const SpaTable: React.FC<TableProps> = () => {
-  const dispatch: ThunkDispatch<any, any, AnyAction> = useDispatch();
   const [visible, setVisible] = useState(false);
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
-  const { data, loading, error } = useSelector(
-    (state: { orders: Orders }) => state.orders
-  );
+  const [orderType, setOrderType] = useState<string>("");
+  const { data, error, isLoading } = useFetchOrdersQuery(orderType);
 
   const onSelect = useCallback(
     (type: string) => {
-      dispatch(fetchOrders(`/ByType?orderType=${type}`));
+      setOrderType(`/ByType?orderType=${type}`);
     },
-    [dispatch]
+    [setOrderType]
   );
 
-  const deleteOrders = useCallback(() => {
-    // dispatch(deleteOrders(selectedOrders));
-  }, [selectedOrders]);
+  const deleteSelected = useCallback(async () => {}, [selectedOrders]);
 
   const toggleModal = useCallback(() => {
     setVisible((visible) => !visible);
@@ -60,10 +53,6 @@ export const SpaTable: React.FC<TableProps> = () => {
     (orders: Array<string>) => setSelectedOrders(orders),
     [setSelectedOrders]
   );
-
-  useEffect(() => {
-    dispatch(fetchOrders(""));
-  }, [dispatch]);
 
   return (
     <SpaTablePage>
@@ -80,14 +69,14 @@ export const SpaTable: React.FC<TableProps> = () => {
         <ButtonComponent
           icon={<DeleteIcon />}
           label="DELETE SELECT"
-          onClick={deleteOrders}
+          onClick={deleteSelected}
         />
         <OrderTypeDropdown onSelect={onSelect} />
       </TableHeader>
       <Table
         data={data}
         error={error}
-        loading={loading}
+        loading={isLoading}
         setData={setOrderSelection}
       />
       <Modal toggleModal={toggleModal} visible={visible}>

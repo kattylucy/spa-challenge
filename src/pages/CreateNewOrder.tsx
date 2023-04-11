@@ -1,18 +1,15 @@
 import { useCallback, useState } from "react";
-import { useDispatch } from "react-redux";
-import { ThunkDispatch } from "redux-thunk";
 import { v4 as uuid } from "uuid";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
 import styled from "@emotion/styled";
 import TextField from "@mui/material/TextField";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import { useCreateOrderMutation } from "src/app/redux/api/ordersApi";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { ButtonComponent } from "src/components/Button";
-import { createOrder } from "src/app/requests/ordersRequest";
-import { toast } from "src/app/store/actions/ToastActions";
-import { Order } from "src/app/types/OrdersTypes";
 import { OrderTypeDropdown } from "./OrderTypeDrodpown";
 
 interface CreateNewOrderProps {
@@ -54,38 +51,28 @@ const Actions = styled(DialogActions)({
 });
 
 export const CreateNewOrder = ({ toggleModal }: CreateNewOrderProps) => {
-  const dispatch: ThunkDispatch<any, any, any> = useDispatch();
+  const [createOrder] = useCreateOrderMutation();
 
-  const [newOrder, setNewOrder] = useState<Order>({
+  const [newOrder, setNewOrder] = useState({
     customerName: "",
     createdByUserName: "Test",
     createdDate: "",
-    orderId: "",
     orderType: "",
   });
+
+  const disabled = Object.values(newOrder).some((value) => value === "");
 
   const create = useCallback(async () => {
     const id = uuid();
     try {
-      await dispatch(createOrder({ ...newOrder, orderId: id }));
-      toast(
-        {
-          message: "Your order was created.",
-          status: "success",
-        },
-        dispatch
-      );
-      toggleModal();
-    } catch (err) {
-      toast(
-        {
-          message: "There was a problem creating your order, try again.",
-          status: "error",
-        },
-        dispatch
-      );
+      await createOrder({ ...newOrder, orderId: id });
+      toast.success("Order was created.", { autoClose: 9000 });
+    } catch (error) {
+      toast.error("Something went wrong while creating your order.");
     }
-  }, [newOrder, dispatch, toggleModal]);
+
+    toggleModal();
+  }, [newOrder, toggleModal]);
 
   const update = useCallback((value: string | object | null, key: string) => {
     const newValue =
@@ -123,7 +110,12 @@ export const CreateNewOrder = ({ toggleModal }: CreateNewOrderProps) => {
           label="Cancel"
           variant="outlined"
         />
-        <ButtonComponent onClick={create} label="Create" variant="contained" />
+        <ButtonComponent
+          onClick={create}
+          disabled={disabled}
+          label="Create"
+          variant="contained"
+        />
       </Actions>
     </>
   );

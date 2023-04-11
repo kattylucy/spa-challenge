@@ -12,8 +12,8 @@ interface Order {
 
 interface TableProps {
   data: Order[];
-  error: boolean;
-  loading: string;
+  error: string | null;
+  loading: boolean;
   setData: (orders: Array<string>) => void;
 }
 
@@ -41,7 +41,7 @@ export const Table = ({
   setData,
   ...props
 }: TableProps) => {
-  const rows = data.map((row) => ({ id: row.orderId, ...row }));
+  const rows = data?.map((row) => ({ id: row.orderId, ...row }));
 
   const handleSelectionModelChange = useCallback(
     (selection: any) => {
@@ -49,6 +49,8 @@ export const Table = ({
     },
     [setData]
   );
+
+  if (loading) return null;
 
   return (
     <TableWrapper {...props}>
