@@ -1,5 +1,6 @@
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import styled from "@emotion/styled";
+import { useCallback } from "react";
 
 interface Order {
   orderId: string;
@@ -13,6 +14,7 @@ interface TableProps {
   data: Order[];
   error: boolean;
   loading: string;
+  setData: (orders: Array<string>) => void;
 }
 
 const TableWrapper = styled.div({
@@ -32,14 +34,31 @@ const columns: GridColDef[] = [
   { field: "customerName", headerName: "Customer", width: 160 },
 ];
 
-export const Table = ({ data, error, loading, ...props }: TableProps) => {
+export const Table = ({
+  data,
+  error,
+  loading,
+  setData,
+  ...props
+}: TableProps) => {
   const rows = data.map((row) => ({ id: row.orderId, ...row }));
 
-  if (loading) return <p>loading...</p>;
+  const handleSelectionModelChange = useCallback(
+    (selection: any) => {
+      setData(selection);
+    },
+    [setData]
+  );
 
   return (
     <TableWrapper {...props}>
-      <DataGrid rows={rows} columns={columns} checkboxSelection />
+      <DataGrid
+        columns={columns}
+        checkboxSelection
+        loading={Boolean(loading)}
+        rows={rows}
+        onRowSelectionModelChange={handleSelectionModelChange}
+      />
     </TableWrapper>
   );
 };
