@@ -3,6 +3,7 @@ import { useDebouncedCallback } from "use-debounce";
 import styled from "@emotion/styled";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CircularProgress from "@mui/material/CircularProgress";
 import {
   useFetchOrdersQuery,
   useDeleteOrdersMutation,
@@ -46,6 +47,12 @@ const TableHeader = styled.div(({ theme: { colors, device } }) => ({
 const SpaTablePage = styled.div({
   display: "flex",
   flexDirection: "column",
+});
+
+const Loader = styled.div({
+  display: "flex",
+  justifyContent: "center",
+  marginTop: "10%",
 });
 
 export const SpaTable: React.FC<TableProps> = () => {
@@ -116,12 +123,18 @@ export const SpaTable: React.FC<TableProps> = () => {
         />
         <OrderTypeDropdown onSelect={onSelect} />
       </TableHeader>
-      <Table
-        data={orders}
-        error={isError}
-        loading={isLoading}
-        setData={setOrderSelection}
-      />
+      {!isLoading ? (
+        <Table
+          data={orders || []}
+          error={isError}
+          loading={isLoading}
+          setData={setOrderSelection}
+        />
+      ) : (
+        <Loader>
+          <CircularProgress />
+        </Loader>
+      )}
       <Modal toggleModal={toggleModal} visible={visible}>
         <CreateNewOrder toggleModal={toggleModal} />
       </Modal>

@@ -1,11 +1,10 @@
 import { useCallback } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import CircularProgress from "@mui/material/CircularProgress";
 import styled from "@emotion/styled";
 import { Order } from "src/app/types/OrdersTypes";
 
 interface TableProps {
-  data: Array<Order> | undefined;
+  data: Array<Order>;
   error: boolean | null;
   loading: boolean;
   setData: (orders: Array<string>) => void;
@@ -18,12 +17,6 @@ const TableWrapper = styled.div({
     height: "50vh",
     fontWeight: 500,
   },
-});
-
-const Loader = styled.div({
-  display: "flex",
-  justifyContent: "center",
-  marginTop: "10%",
 });
 
 const columns: GridColDef[] = [
@@ -52,19 +45,13 @@ export const Table = ({
 
   return (
     <TableWrapper {...props}>
-      {!data || loading ? (
-        <Loader>
-          <CircularProgress />
-        </Loader>
-      ) : (
-        <DataGrid
-          columns={columns}
-          checkboxSelection
-          loading={Boolean(loading)}
-          rows={rows}
-          onRowSelectionModelChange={handleSelectionModelChange}
-        />
-      )}
+      <DataGrid
+        columns={columns}
+        checkboxSelection
+        loading={loading}
+        rows={rows}
+        onRowSelectionModelChange={handleSelectionModelChange}
+      />
     </TableWrapper>
   );
 };
