@@ -2,18 +2,11 @@ import { useCallback } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import CircularProgress from "@mui/material/CircularProgress";
 import styled from "@emotion/styled";
-
-interface Order {
-  orderId: string;
-  createdDate: string;
-  createdByUserName: string;
-  orderType: string;
-  customerName: string;
-}
+import { Order } from "src/app/types/OrdersTypes";
 
 interface TableProps {
-  data: Order[];
-  error: string | null;
+  data: Array<Order> | undefined;
+  error: boolean | null;
   loading: boolean;
   setData: (orders: Array<string>) => void;
 }

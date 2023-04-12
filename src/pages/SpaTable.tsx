@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
 import styled from "@emotion/styled";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   useFetchOrdersQuery,
-  useDeleteOrders,
+  useDeleteOrdersMutation,
 } from "src/app/redux/api/ordersApi";
 import { toast } from "react-toastify";
 import { SearchInput } from "src/components/SearchInput";
@@ -51,13 +52,27 @@ export const SpaTable: React.FC<TableProps> = () => {
   const [visible, setVisible] = useState(false);
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [orderType, setOrderType] = useState<string>("");
-  const { data, error, isLoading } = useFetchOrdersQuery(orderType);
-  const [orders, setOrders] = useState();
+  const { data, isError, isLoading } = useFetchOrdersQuery(orderType);
+  const [orders, setOrders] = useState<Order[] | undefined>([]);
 
-  const [deleteOrders] = useDeleteOrders();
+  const [deleteOrders] = useDeleteOrdersMutation();
+
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    const filtered = (orders as Order[]).filter((order: Order) =>
+      order.customerName.toLowerCase().includes(value.toLowerCase())
+    );
+    setOrders(value === "" ? data : filtered);
+  }, 500);
+
+  const handleSearch = useCallback(
+    (value: string) => {
+      debouncedSearch(value);
+    },
+    [debouncedSearch]
+  );
 
   useEffect(() => {
-    setOrders(data);
+    setOrders(data || []);
   }, [data, setOrders]);
 
   const onSelect = useCallback(
@@ -85,21 +100,10 @@ export const SpaTable: React.FC<TableProps> = () => {
     [setSelectedOrders]
   );
 
-  const searchCustomer = useCallback(
-    (e: string) => {
-      const searchVal = e.toLowerCase();
-      const filtered = orders?.filter((order: Order) =>
-        order.customerName.toLowerCase().includes(searchVal)
-      );
-      setOrders(searchVal === "" ? data : filtered);
-    },
-    [orders, setOrders, data]
-  );
-
   return (
     <SpaTablePage>
       <TableHeader>
-        <SearchInput onChange={searchCustomer} placeholder="Customer Search" />
+        <SearchInput onChange={handleSearch} placeholder="Customer Search" />
         <ButtonComponent
           icon={<AddIcon />}
           onClick={toggleModal}
@@ -114,7 +118,7 @@ export const SpaTable: React.FC<TableProps> = () => {
       </TableHeader>
       <Table
         data={orders}
-        error={error}
+        error={isError}
         loading={isLoading}
         setData={setOrderSelection}
       />

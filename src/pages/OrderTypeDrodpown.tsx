@@ -1,7 +1,7 @@
 import { DropdownComponent } from "src/components/Dropdown";
 
 interface OrderTypeDropdownProps {
-  onSelect: (value: string, type: string) => void;
+  onSelect: (value: string, type?: string) => void;
 }
 
 const orderTypes = ["Standard", "ReturnOrder", "TransferOrder", "SaleOrder"];
