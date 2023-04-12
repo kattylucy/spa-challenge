@@ -76,9 +76,10 @@ export const useFetchOrders = (filter?: string): [FetchOrdersResult, () => void]
   const { data, error, isLoading, refetch } = useFetchOrdersQuery(filter);
   const result: FetchOrdersResult = {
     data: data?.data ?? [],
-    error: error?.error ?? null,
+    error: error?.response?.data ?? null,
     isLoading,
   };
+
   return [result, refetch];
 };
 

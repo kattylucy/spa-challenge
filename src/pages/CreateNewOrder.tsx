@@ -101,7 +101,9 @@ export const CreateNewOrder = ({ toggleModal }: CreateNewOrderProps) => {
         </InputWrapper>
         <InputWrapper>
           <Label>Order Creation</Label>
-          <DatePicker onChange={(date) => update(date, "createdDate")} />
+          <DatePicker
+            onChange={(date: Date | null) => update(date, "createdDate")}
+          />
         </InputWrapper>
       </Body>
       <Actions>
