@@ -3,6 +3,8 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoImg from "src/static/static.jpg";
 
+interface HeaderProps {}
+
 const LogoWrapper = styled.div({
   alignItems: "center",
   display: "flex",
@@ -28,7 +30,7 @@ const RightSide = styled.div({
   },
 });
 
-export const Header = () => {
+export const Header: React.FC<HeaderProps> = () => {
   return (
     <PageHeader>
       <LogoWrapper>

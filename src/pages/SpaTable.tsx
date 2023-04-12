@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useDebouncedCallback } from "use-debounce";
 import styled from "@emotion/styled";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -64,20 +63,6 @@ export const SpaTable: React.FC<TableProps> = () => {
 
   const [deleteOrders] = useDeleteOrdersMutation();
 
-  const debouncedSearch = useDebouncedCallback((value: string) => {
-    const filtered = (orders as Order[]).filter((order: Order) =>
-      order.customerName.toLowerCase().includes(value.toLowerCase())
-    );
-    setOrders(value === "" ? data : filtered);
-  }, 500);
-
-  const handleSearch = useCallback(
-    (value: string) => {
-      debouncedSearch(value);
-    },
-    [debouncedSearch]
-  );
-
   useEffect(() => {
     setOrders(data || []);
   }, [data, setOrders]);
@@ -105,6 +90,20 @@ export const SpaTable: React.FC<TableProps> = () => {
   const setOrderSelection = useCallback(
     (orders: Array<string>) => setSelectedOrders(orders),
     [setSelectedOrders]
+  );
+
+  const handleSearch = useCallback(
+    (value: string) => {
+      if (value === "") {
+        setOrders(data);
+      } else {
+        const filtered = (orders as Order[]).filter((order: Order) => {
+          return order.customerName.toLowerCase().includes(value);
+        });
+        setOrders(filtered);
+      }
+    },
+    [data, orders]
   );
 
   return (

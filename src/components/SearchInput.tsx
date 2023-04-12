@@ -45,12 +45,13 @@ export const SearchInput = ({
   const onInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setValue(event.target.value);
-      onChange(event.target.value);
     },
-    [onChange, setValue]
+    [setValue]
   );
 
-  const onSearch = useCallback(() => {}, []);
+  const onSearch = useCallback(() => {
+    onChange(value.toLowerCase());
+  }, [value, onChange]);
 
   return (
     <StyledOutlineInput
